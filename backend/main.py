@@ -1,11 +1,17 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from the .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-apiKey = '1a404bebef2c226c6daa2907d7bd6917'
+# Get the API key from environment variables
+apiKey = os.getenv('API_KEY')
 
 @app.route('/api', methods=['POST'])
 def current_weather():

@@ -13,7 +13,9 @@ const App = () => {
     setData(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api', {
+      const apiUrl = process.env.REACT_APP_API_URL; // Use the environment variable
+
+      const response = await fetch(`${apiUrl}/api`, {  // Dynamically use the backend URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
