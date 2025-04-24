@@ -13,9 +13,8 @@ const App = () => {
     setData(null);
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL; // Use the environment variable
-
-      const response = await fetch(`${apiUrl}/api`, {  // Dynamically use the backend URL
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,24 +22,29 @@ const App = () => {
         body: JSON.stringify({ city }),
       });
 
-      if (!response.ok) {
-        throw new Error('City not found');
+      const result = await response.json();
+      console.log('Result:', result);
+
+      if (!response.ok || result.error) {
+        throw new Error(result.error || 'City not found');
       }
 
-      const result = await response.json();
       setData(result);
     } catch (err) {
+      console.error('Fetch error:', err.message);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const getWeatherIcon = (iconCode) => `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+  const getWeatherIcon = (iconCode) =>
+    `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 
   return (
     <div className="app-container">
       <h1 className="title">🌤️ WeatherPro</h1>
+
       <div className="search-container">
         <input
           type="text"
@@ -56,19 +60,24 @@ const App = () => {
 
       {error && <p className="error">{error}</p>}
 
-      {data && data.main && (
+      {data && (
         <div className="weather-card">
-          <h2>{data.name}, {data.sys.country}</h2>
-          <img src={getWeatherIcon(data.weather[0].icon)} alt="icon" />
-          <p className="temp">{Math.round(data.main.temp)}°C</p>
-          <p className="description">{data.weather[0].description}</p>
+          <h2>{data.city}, {data.country}</h2>
+
+          {data.icon && (
+            <img src={getWeatherIcon(data.icon)} alt={data.description} />
+          )}
+
+          <p className="temp">{Math.round(data.temperature)}°C</p>
+          <p className="description">{data.description}</p>
+
           <div className="details">
-            <p>Feels Like: {Math.round(data.main.feels_like)}°C</p>
-            <p>Humidity: {data.main.humidity}%</p>
-            <p>Wind: {data.wind.speed} km/h</p>
-            <p>Pressure: {data.main.pressure} hPa</p>
+            <p>Feels Like: {Math.round(data.feels_like)}°C</p>
+            <p>Humidity: {data.humidity}%</p>
+            <p>Wind Speed: {data.wind_speed} km/h</p>
+            <p>Pressure: {data.pressure} hPa</p>
             <p>Visibility: {data.visibility / 1000} km</p>
-            <p>Cloudiness: {data.clouds.all}%</p>
+            <p>Cloudiness: {data.cloudiness}%</p>
           </div>
         </div>
       )}
