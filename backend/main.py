@@ -4,14 +4,13 @@ import requests
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from the .env file
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Get the API key from environment variables
 apiKey = os.getenv('API_KEY')
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
 @app.route('/api', methods=['POST'])
 def current_weather():
